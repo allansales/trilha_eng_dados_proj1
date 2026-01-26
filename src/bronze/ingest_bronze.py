@@ -1,10 +1,9 @@
 import json
 
-from azure.identity import ClientSecretCredential
-from azure.storage.blob import BlobServiceClient
-
 from config.settings import settings
 from config.config_loader import load_config
+
+from src.bronze.utils.ingest_utils import *
 
 tenant_id = settings.AZURE_TENANT_ID
 client_id = settings.AZURE_CLIENT_ID
@@ -16,24 +15,8 @@ account_url = source_cfg["account_url"]
 container_name = source_cfg["container_name"]
 blob_name = source_cfg["blob_name"]
 
-credential = ClientSecretCredential(
-    tenant_id=tenant_id,
-    client_id=client_id,
-    client_secret=client_secret
-)
+path_data_bronze = config['paths']['data']['bronze']
+artifact_bronze_name = config['artifacts']['data']['bronze']
 
-blob_service_client = BlobServiceClient(
-    account_url=account_url,
-    credential=credential
-)
-
-blob_client = blob_service_client.get_blob_client(
-    container=container_name,
-    blob=blob_name
-)
-
-blob_bytes = blob_client.download_blob().readall()
-
-data = json.loads(blob_bytes.decode("utf-8"))
-
-print(data.keys())
+data = get_json_blob_from_azure(blob_name, container_name, account_url, tenant_id, client_id, client_secret)
+write_json_to_destination(data, path_data_bronze, artifact_bronze_name)
