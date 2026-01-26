@@ -25,7 +25,7 @@ def get_json_blob_from_azure(blob_name:str, container_name:str, account_url:str,
 
     return json.loads(blob_bytes.decode("utf-8"))
 
-def write_json_to_destination(data:json, path_data_bronze:str, artifact_bronze_name:str):
+def write_json_to_destination(data:json, path_data_bronze:str, artifact_bronze_name:str) -> bool:
     try: 
         with open(f"{path_data_bronze}/{artifact_bronze_name}", "w", encoding="utf-8") as f:
             json.dump(data, f)
