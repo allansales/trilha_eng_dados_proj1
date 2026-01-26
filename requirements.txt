@@ -1,0 +1,5 @@
+pandas
+ipykernel
+pyarrow
+pyyaml
+python-dotenv
