@@ -3,8 +3,8 @@ paths:
         bronze: data/bronze/
         silver: data/silver/
         gold: data/gold/
-        
+
 source:
-    account_url: https://stfasttracksdev.blob.core.windows.net"
+    account_url: https://stfasttracksdev.blob.core.windows.net
     container_name: source-jira
     blob_name: jira_issues_raw.json
