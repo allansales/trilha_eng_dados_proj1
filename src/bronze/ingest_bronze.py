@@ -16,7 +16,7 @@ container_name = source_cfg["container_name"]
 blob_name = source_cfg["blob_name"]
 
 path_data_bronze = config['paths']['data']['bronze']
-artifact_bronze_name = config['artifacts']['data']['bronze']
+artifact_bronze_name = config['artifacts']['data']['bronze']['issue']
 
 data = get_json_blob_from_azure(blob_name, container_name, account_url, tenant_id, client_id, client_secret)
 write_json_to_destination(data, path_data_bronze, artifact_bronze_name)
