@@ -4,13 +4,11 @@ from config.config_loader import load_config
 
 config = load_config()
 
-filename = config['paths']['data']['bronze'] + "/" + config['artifacts']['data']['bronze'] 
-
 def json_to_dataframes(data: dict):
     """
-    Recebe um JSON de project + issues e retorna:
+    Receives a project + issues JSON e returns:
     1) df_project
-    2) df_issue (com FK project_id)
+    2) df_issue (with project_id as FK)
     """
 
     # -------------------------
@@ -34,7 +32,7 @@ def json_to_dataframes(data: dict):
             "project_id": project_id  # FK
         }
 
-        # Assignee (assumindo 1 assignee por issue)
+        # Assignee
         assignee = issue.get("assignee", [])
         if assignee:
             base_issue.update({
@@ -43,7 +41,7 @@ def json_to_dataframes(data: dict):
                 "assignee_email": assignee[0].get("email"),
             })
 
-        # Timestamps (assumindo 1 registro)
+        # Timestamps
         timestamps = issue.get("timestamps", [])
         if timestamps:
             base_issue.update({
@@ -57,10 +55,40 @@ def json_to_dataframes(data: dict):
 
     return df_project, df_issue
 
-# with open(filename, "r", encoding="utf-8") as f:
-with open("data/bronze/bronze_sample.json", "r", encoding="utf-8") as f:
-    dados = json.load(f)
+def validate_resolved_at(df: pd.DataFrame) -> pd.Series:
+    date_valid = pd.to_datetime(df["resolved_at"], errors="coerce").notna()
+    date_null_and_finished = df["resolved_at"].isna() & (df["status"] == "Open")
+    
+    return date_valid | date_null_and_finished
 
-project, issue = json_to_dataframes(dados)
-print(project.head(2))
-print(issue.head(2))
+def evaluate_dates_quality(row):
+    if not row["is_created_at_valid"] and not row["is_resolved_at_valid"]:
+        return "INVALID_CREATED_AND_RESOLVED"
+    if not row["is_created_at_valid"]:
+        return "INVALID_CREATED_AT"
+    if not row["is_resolved_at_valid"]:
+        return "INVALID_RESOLVED_AT"
+    return "VALID"
+
+issues_raw = config['paths']['data']['bronze'] + "/" + config['artifacts']['data']['bronze']['issue']
+with open(issues_raw, "r", encoding="utf-8") as f:
+    issues_data = json.load(f)
+
+project, issue = json_to_dataframes(issues_data)
+
+issue["raw_created_at"] = issue["created_at"]
+issue["raw_resolved_at"] = issue["resolved_at"]
+
+issue["created_at"] = pd.to_datetime(issue.raw_created_at, errors="coerce", utc=True)
+issue["resolved_at"] = pd.to_datetime(issue.raw_resolved_at, errors="coerce", utc=True)
+
+issue["is_created_at_valid"] = issue["created_at"].notna()
+issue["is_resolved_at_valid"] = validate_resolved_at(issue)
+
+issue["dates_quality"] = issue.apply(evaluate_dates_quality, axis=1)
+
+silver_issues_filename = config['paths']['data']['silver'] + "/" + config['artifacts']['data']['silver']['issue']
+issue.to_parquet(silver_issues_filename)
+
+silver_project_filename = config['paths']['data']['silver'] + "/" + config['artifacts']['data']['silver']['project']
+project.to_parquet(silver_project_filename)
