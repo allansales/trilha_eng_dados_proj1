@@ -1,10 +1,12 @@
 import json
 import pandas as pd
 from config.config_loader import load_config
+from src.utils.write_utils import write_to_destination
+from src.utils.ingest_utils import read_from_source
 
 config = load_config()
 
-def json_to_dataframes(data: dict):
+def create_dataframes_from_json(data: dict):
     """
     Receives a project + issues JSON e returns:
     1) df_project
@@ -70,11 +72,11 @@ def evaluate_dates_quality(row):
         return "INVALID_RESOLVED_AT"
     return "VALID"
 
-issues_raw = config['paths']['data']['bronze'] + "/" + config['artifacts']['data']['bronze']['issue']
-with open(issues_raw, "r", encoding="utf-8") as f:
-    issues_data = json.load(f)
+path_data_bronze = config['paths']['data']['bronze']
+bronze_issue_filename = config['artifacts']['data']['bronze']['issue']
+issues_data = read_from_source(path_data_bronze, bronze_issue_filename)
 
-project, issue = json_to_dataframes(issues_data)
+project, issue = create_dataframes_from_json(issues_data)
 
 issue["raw_created_at"] = issue["created_at"]
 issue["raw_resolved_at"] = issue["resolved_at"]
@@ -87,8 +89,9 @@ issue["is_resolved_at_valid"] = validate_resolved_at(issue)
 
 issue["dates_quality"] = issue.apply(evaluate_dates_quality, axis=1)
 
-silver_issues_filename = config['paths']['data']['silver'] + "/" + config['artifacts']['data']['silver']['issue']
-issue.to_parquet(silver_issues_filename)
+path_data_silver = config['paths']['data']['silver']
+issue_filename = config['artifacts']['data']['silver']['issue']
+project_filename = config['artifacts']['data']['silver']['project']
 
-silver_project_filename = config['paths']['data']['silver'] + "/" + config['artifacts']['data']['silver']['project']
-project.to_parquet(silver_project_filename)
+write_to_destination(issue, path_data_silver, issue_filename)
+write_to_destination(issue, path_data_silver, project_filename)

@@ -3,7 +3,8 @@ import json
 from config.settings import settings
 from config.config_loader import load_config
 
-from src.bronze.utils.ingest_utils import *
+from src.utils.write_utils import write_to_destination
+from src.utils.ingest_utils import get_json_blob_from_azure
 
 tenant_id = settings.AZURE_TENANT_ID
 client_id = settings.AZURE_CLIENT_ID
@@ -19,4 +20,4 @@ path_data_bronze = config['paths']['data']['bronze']
 artifact_bronze_name = config['artifacts']['data']['bronze']['issue']
 
 data = get_json_blob_from_azure(blob_name, container_name, account_url, tenant_id, client_id, client_secret)
-write_json_to_destination(data, path_data_bronze, artifact_bronze_name)
+write_to_destination(data, path_data_bronze, artifact_bronze_name)
