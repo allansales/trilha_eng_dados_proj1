@@ -6,7 +6,11 @@ paths:
 
 artifacts:
     data: 
-        bronze: bronze_jira_issues_raw.json
+        bronze: 
+            issue: bronze_jira_issues_raw.json
+        silver:
+            issue: silver_jira_issues.parquet
+            project: silver_jira_projects.parquet
 
 source:
     account_url: https://stfasttracksdev.blob.core.windows.net
