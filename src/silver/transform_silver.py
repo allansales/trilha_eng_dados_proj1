@@ -1,4 +1,3 @@
-import json
 import pandas as pd
 from config.config_loader import load_config
 from src.utils.write_utils import write_to_destination
@@ -78,6 +77,7 @@ issues_data = read_from_source(path_data_bronze, bronze_issue_filename)
 
 project, issue = create_dataframes_from_json(issues_data)
 
+# TODO: cast raw_created_at and raw_resolved_at to datetime
 issue["raw_created_at"] = issue["created_at"]
 issue["raw_resolved_at"] = issue["resolved_at"]
 
@@ -94,4 +94,4 @@ issue_filename = config['artifacts']['data']['silver']['issue']
 project_filename = config['artifacts']['data']['silver']['project']
 
 write_to_destination(issue, path_data_silver, issue_filename)
-write_to_destination(issue, path_data_silver, project_filename)
+write_to_destination(project, path_data_silver, project_filename)

@@ -5,3 +5,4 @@ pyyaml
 python-dotenv
 azure-identity
 azure-storage-blob
+holidays
