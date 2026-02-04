@@ -11,6 +11,9 @@ path_data_silver = config['paths']['data']['silver']
 silver_issue_filename = config['artifacts']['data']['silver']['issue']
 issues_data_silver = read_from_source(path_data_silver, silver_issue_filename)
 
+silver_project_filename = config['artifacts']['data']['silver']['project']
+project_data_silver = read_from_source(path_data_silver, silver_project_filename)
+
 # Filter finished and valid issues
 finished_issues = issues_data_silver[issues_data_silver.status != "Open"]
 valid_issues = finished_issues[finished_issues.dates_quality == 'VALID']
@@ -28,7 +31,7 @@ valid_issues["is_sla_violated"] = get_is_sla_violated(valid_issues, "business_ho
 # Save issues and projects in the gold data folder as parquet
 path_data_gold = config['paths']['data']['gold']
 issue_filename = config['artifacts']['data']['gold']['issue']
-project_filename = config['artifacts']['data']['gold']['project']
-
 write_to_destination(valid_issues, path_data_gold, issue_filename)
-write_to_destination(valid_issues, path_data_gold, project_filename)
+
+project_filename = config['artifacts']['data']['gold']['project']
+write_to_destination(project_data_silver, path_data_gold, project_filename)
