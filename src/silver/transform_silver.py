@@ -94,4 +94,4 @@ issue_filename = config['artifacts']['data']['silver']['issue']
 project_filename = config['artifacts']['data']['silver']['project']
 
 write_to_destination(issue, path_data_silver, issue_filename)
-write_to_destination(issue, path_data_silver, project_filename)
+write_to_destination(project, path_data_silver, project_filename)
