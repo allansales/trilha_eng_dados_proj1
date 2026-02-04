@@ -11,6 +11,9 @@ artifacts:
         silver:
             issue: silver_jira_issues.parquet
             project: silver_jira_projects.parquet
+        gold:
+            issue: gold_jira_issues.parquet
+            project: gold_jira_projects.parquet
 
 source:
     account_url: https://stfasttracksdev.blob.core.windows.net
