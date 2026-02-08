@@ -3,6 +3,7 @@ descricao/*
 
 # Dados
 data/*
+analytics/report/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
