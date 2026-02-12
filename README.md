@@ -1,4 +1,4 @@
-# 📦 Nome do Projeto
+# 📦 Cálculo de métricas de SLA utilizando a arquitetura Medallion
 
 > **Descrição curta:** Pipeline de processamento de dados em Python com
 > orquestração modular, integração com Azure e suporte a análise
@@ -26,27 +26,27 @@ O objetivo é garantir:
 
     .
     ├── src/
-    │   └── orchestration/
+    │   ├── orchestration/
     │   │    └── pipeline.py        # Orquestrador principal
-    │   └── bronze/ 
+    │   ├── bronze/ 
     │   │    └── ingest_bronze.py
-    │   └── silver/ 
+    │   ├── silver/ 
     │   │    └── transform_silver.py
     │   └── gold/
     │       └── build_gold.py
     │
     ├── config/
-    │   └── config_loader.py
-    │   └── settings.py
+    │   ├── config_loader.py
+    │   ├── settings.py
     │   └── pipeline.yaml         # definição de paths
     │
     ├── data/
-    │   └── bronze/ 
-    │   └── silver/ 
+    │   ├── bronze/ 
+    │   ├── silver/ 
     │   └── gold/
     │
     ├── analytics/
-    │   └── eda.py                 # Análise exploratória
+    │   ├── eda.py                 # Análise exploratória
     │   └── report/
     │
     ├── .gitignore
@@ -154,3 +154,11 @@ python -m src.orchestration.pipeline
 ``` bash
 python -m analytics.eda
 ```
+
+## 8. Explicação da lógica de cálculo do SLA
+
+## 9. Dicionários de dados
+
+### 9.1 Tabela final
+
+### 9.2 Relatórios
