@@ -155,10 +155,136 @@ python -m src.orchestration.pipeline
 python -m analytics.eda
 ```
 
-## 8. Explicação da lógica de cálculo do SLA
+## ⏱ 8. Explicação da Lógica de Cálculo do SLA
 
-## 9. Dicionários de dados
+O cálculo do SLA foi realizado considerando como **dias úteis** todos os
+dias que não sejam finais de semana ou feriados.
 
-### 9.1 Tabela final
+Para fins de apuração, cada dia útil é tratado como contendo **24 horas
+úteis**, ou seja, não há restrição de janela de horário (por exemplo,
+08h às 18h). Isso significa que qualquer horário dentro de um dia
+classificado como útil é contabilizado no cálculo.
 
-### 9.2 Relatórios
+### Regras aplicadas
+
+-   São considerados dias não úteis:
+    -   Sábados
+    -   Domingos
+    -   Feriados oficiais
+-   Não há limitação de horário comercial.
+-   Se uma issue for resolvida em horários não convencionais (ex:
+    madrugada), as horas serão contabilizadas normalmente, desde que o
+    dia seja útil.
+-   Caso uma issue seja criada e resolvida integralmente em um fim de
+    semana ou feriado, o total de horas úteis computadas será **0
+    horas**.
+
+### Identificação de Feriados
+
+Para a identificação de feriados, é utilizado o pacote `holidays`,
+listado no arquivo `requirements.txt`.
+
+Esse pacote permite determinar programaticamente se uma determinada data
+corresponde a um feriado oficial, garantindo consistência no cálculo das
+horas úteis.
+
+## 📚 9. Dicionário de Dados
+
+### 9.1 Issues (Tabela final)
+
+Este dataset representa **issues (chamados) do Jira**, contendo
+informações sobre responsabilidade, prazos e cumprimento de SLA (Service
+Level Agreement).
+
+Cada registro corresponde a um chamado individual.
+
+------------------------------------------------------------------------
+
+### 🔎 Identificação da Issue
+
+| Coluna | Tipo Esperado | Descrição |
+| :--- | :--- | :--- |
+| `issue_id` | string | Identificador único da issue no Jira. |
+| `issue_type` | string | Tipo da issue (ex: Bug, Task). |
+| `status` | string | Status atual ou final da issue (ex: Open, Resolved, Done). |
+| `priority` | string | Nível de prioridade definido no Jira (ex: Low, Medium, High). |
+| `project_id` | string | Identificador do projeto ao qual a issue pertence. |
+
+---
+
+### 👤 Responsável
+
+| Coluna | Tipo Esperado | Descrição |
+| :--- | :--- | :--- |
+| `assignee_id` | string | Identificador único do responsável pela issue. |
+| `assignee_name` | string | Nome do responsável pela execução da issue. |
+| `assignee_email` | string | Email do responsável. |
+
+---
+
+### 🗓 Datas da Issue
+
+| Coluna | Tipo Esperado | Descrição |
+| :--- | :--- | :--- |
+| `created_at` | datetime | Data/hora normalizada de criação da issue. |
+| `resolved_at` | datetime | Data/hora normalizada de resolução da issue. |
+| `raw_created_at` | string | Data/hora original conforme extraída do Jira (antes de tratamento). |
+| `raw_resolved_at` | string | Data/hora original de resolução conforme extraída do Jira (antes de tratamento). |
+
+---
+
+### 🔍 Qualidade de Dados
+
+| Coluna | Tipo Esperado | Descrição |
+| :--- | :--- | :--- |
+| `is_created_at_valid` | boolean | Indica se `created_at` passou nas validações de consistência. |
+| `is_resolved_at_valid` | boolean | Indica se `resolved_at` passou nas validações de consistência. |
+| `dates_quality` | string | Indicador consolidado da qualidade das datas (i.e., VALID, INVALID_CREATED_AND_RESOLVED, INVALID_CREATED_AT, INVALID_RESOLVED_AT). |
+
+---
+
+### ⏱ Métricas de SLA
+
+| Coluna | Tipo Esperado | Descrição |
+| :--- | :--- | :--- |
+| `business_hours_to_sla_resolution` | float | Tempo real gasto para resolver a issue, calculado em horas úteis entre `created_at` e `resolved_at`. |
+| `expected_sla_hours_to_resolution` | float | Tempo máximo permitido para resolução da issue conforme regra de SLA definida (em horas úteis). |
+| `is_sla_violated` | boolean | Indica se o SLA foi violado (True) ou atendido (False). Uma violação ocorre quando o tempo real excede o esperado. |
+
+---
+
+### 9.2 Project (Tabela final)
+
+Este dataset representa **Projetos do Jira**, contendo
+informações sobre os projetos em que as issues foram abertas.
+
+Cada registro corresponde a um projeto.
+
+| Coluna | Tipo Esperado | Descrição |
+| :--- | :--- | :--- |
+| `project_id` | string | Identificador do projeto ao qual a issue pertence. |
+| `project_name` | string | Nome completo ou descritivo do projeto. |
+| `extracted_at` | datetime | Data e hora em que os dados foram extraídos do sistema (formato UTC). |
+
+### 9.3 Relatórios 
+
+### 📊 SLA Médio por Analista
+
+| Coluna | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `assignee_name` | string | Nome do responsável pela execução da issue. |
+| `assignee_id` | string | Identificador único do responsável pela issue. |
+| `project_id` | string | Identificador do projeto ao qual a issue pertence. |
+| `avg_business_hours_to_sla_resolution` | float | Média de horas úteis gastas para a resolução das issues (valor numérico decimal). |
+| `issue_count` | integer | Quantidade total de issues atribuídas ao responsável. |
+| `avg_business_hours_to_sla_resolution_hms` | string | Média de tempo de resolução formatada em Horas, Minutos e Segundos (e.g.,: `34:59:56 (34h 59m 56s)`). |
+
+### 📊 SLA Médio por Tipo de Chamado
+
+| Coluna | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `issue_type` | string | Tipo da issue (ex: Bug, Task). |
+| `project_id` | string | Identificador do projeto ao qual a issue pertence. |
+| `avg_business_hours_to_sla_resolution` | float | Média de horas úteis gastas para a resolução das issues (valor numérico decimal). |
+| `issue_count` | integer | Quantidade total de issues atribuídas ao responsável. |
+| `avg_business_hours_to_sla_resolution_hms` | string | Média de tempo de resolução formatada em Horas, Minutos e Segundos (e.g.,: `34:59:56 (34h 59m 56s)`). |
