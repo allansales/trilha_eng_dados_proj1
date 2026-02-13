@@ -78,13 +78,14 @@ path_data_silver = config['paths']['data']['silver']
 issue_filename = config['artifacts']['data']['silver']['issue']
 project_filename = config['artifacts']['data']['silver']['project']
 
+# TODO: transformar data de project para datetime
 def run_silver():
     try:
         issues_data = read_from_source(path_data_bronze, bronze_issue_filename)
 
         project, issue = create_dataframes_from_json(issues_data)
 
-        # TODO: cast raw_created_at and raw_resolved_at to datetime
+        # Transformations for the issues dataset
         issue["raw_created_at"] = issue["created_at"]
         issue["raw_resolved_at"] = issue["resolved_at"]
 
@@ -97,6 +98,11 @@ def run_silver():
         issue["dates_quality"] = issue.apply(evaluate_dates_quality, axis=1)
 
         write_to_destination(issue, path_data_silver, issue_filename)
+
+        # Transformations for the projects dataset
+        project["raw_extracted_at"] = project["extracted_at"]
+        project["extracted_at"] = pd.to_datetime(project.raw_extracted_at, errors="coerce", utc=True)
+
         write_to_destination(project, path_data_silver, project_filename)
         
         print("Successfully executed Silver layer.")

@@ -23,7 +23,6 @@ O objetivo é garantir:
 ------------------------------------------------------------------------
 
 ## 🏗 2. Arquitetura
-
     .
     ├── src/
     │   ├── orchestration/
@@ -253,7 +252,7 @@ Cada registro corresponde a um chamado individual.
 
 ---
 
-### 9.2 Project (Tabela final)
+### 9.2 Project
 
 Este dataset representa **Projetos do Jira**, contendo
 informações sobre os projetos em que as issues foram abertas.
@@ -264,7 +263,8 @@ Cada registro corresponde a um projeto.
 | :--- | :--- | :--- |
 | `project_id` | string | Identificador do projeto ao qual a issue pertence. |
 | `project_name` | string | Nome completo ou descritivo do projeto. |
-| `extracted_at` | datetime | Data e hora em que os dados foram extraídos do sistema (formato UTC). |
+| `extracted_at` | datetime | Data/hora normalizada em que os dados foram extraídos do sistema. |
+| `raw_extracted_at` | string | Data/hora em que os dados foram extraídos do sistema (antes de tratamento). |
 
 ### 9.3 Relatórios 
 
