@@ -23,6 +23,12 @@ O objetivo é garantir:
 ------------------------------------------------------------------------
 
 ## 🏗 2. Arquitetura
+
+A arquitetura do projeto foi estruturada para separar claramente a
+**camada de engenharia de dados (pipeline)** da **camada de consumo
+analítico**, simulando o funcionamento de uma plataforma de dados
+corporativa baseada na arquitetura Medallion.
+
     .
     ├── src/
     │   ├── orchestration/
@@ -52,6 +58,105 @@ O objetivo é garantir:
     ├── requirements.txt
     ├── .env.example
     └── README.md
+
+------------------------------------------------------------------------
+
+### 📂 Pasta `src/`
+
+A pasta `src/` contém todos os scripts relacionados ao **pipeline de
+dados**.
+
+Ela representa a camada de engenharia responsável por:
+
+-   Extração de dados
+-   Tratamento e padronização
+-   Aplicação de regras de negócio
+-   Cálculo de métricas (como SLA)
+-   Persistência dos dados nas camadas da arquitetura
+
+Todo o processamento estruturado do pipeline ocorre dentro dessa pasta.
+
+------------------------------------------------------------------------
+
+### 🔄 Script `src/orchestration/pipeline.py`
+
+O arquivo `pipeline.py` é o **orquestrador principal do pipeline**.
+
+Ele é responsável por executar o fluxo completo da arquitetura
+Medallion:
+
+Bronze → Silver → Gold
+
+#### 📌 Camada Bronze
+
+-   Contém os dados **no mesmo formato em que foram coletados da
+    fonte**.
+-   Não há aplicação de regras de negócio.
+-   Representa a camada de ingestão bruta.
+-   Os dados são armazenados em:
+
+data/bronze/
+
+Essa camada garante rastreabilidade e possibilidade de reprocessamento.
+
+------------------------------------------------------------------------
+
+#### 📌 Camada Silver
+
+-   Contém dados tratados e padronizados.
+-   São aplicadas validações, normalizações e transformações
+    estruturais.
+-   Os dados são armazenados em formato **Parquet**, devido:
+    -   À compressão eficiente
+    -   À redução de espaço em disco
+    -   À melhoria de performance de leitura
+
+Local de armazenamento:
+
+data/silver/
+
+------------------------------------------------------------------------
+
+#### 📌 Camada Gold
+
+-   Contém dados refinados.
+-   Regras de negócio aplicadas (ex: cálculo de SLA).
+-   Dados prontos para consumo analítico.
+-   Também armazenados em **Parquet**, priorizando:
+    -   Alta velocidade de leitura
+    -   Performance em consultas analíticas
+    -   Eficiência no uso de recursos
+
+Local de armazenamento:
+
+data/gold/
+
+------------------------------------------------------------------------
+
+### 📊 Script `analytics/eda.py`
+
+O script `analytics/eda.py` está propositalmente **fora da pasta
+`src/`**.
+
+Essa decisão arquitetural foi tomada para simular o cenário em que um consumidor da plataforma acessa diretamente os dados da **camada Gold**, sem depender da estrutura interna do pipeline. Isso reforça o princípio de que a camada Gold deve ser autossuficiente e pronta para consumo.
+
+------------------------------------------------------------------------
+
+### 📁 Geração de Relatórios
+
+O script `eda.py` realiza análises exploratórias sobre os dados da
+camada Gold e gera **arquivos CSV com os resultados das análises**.
+
+Esses arquivos são armazenados em:
+
+analytics/report/
+
+Essa separação permite:
+
+-   Manter o pipeline isolado da camada de consumo
+-   Versionar outputs analíticos separadamente
+-   Simular o fluxo real de geração de relatórios em ambientes
+    corporativos
 
 ------------------------------------------------------------------------
 
