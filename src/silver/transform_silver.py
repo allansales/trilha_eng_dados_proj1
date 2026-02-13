@@ -78,7 +78,6 @@ path_data_silver = config['paths']['data']['silver']
 issue_filename = config['artifacts']['data']['silver']['issue']
 project_filename = config['artifacts']['data']['silver']['project']
 
-# TODO: transformar data de project para datetime
 def run_silver():
     try:
         issues_data = read_from_source(path_data_bronze, bronze_issue_filename)
