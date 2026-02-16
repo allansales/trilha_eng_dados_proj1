@@ -87,6 +87,8 @@ Medallion:
 
 Bronze → Silver → Gold
 
+------------------------------------------------------------------------
+
 #### 📌 Camada Bronze
 
 -   Contém os dados **no mesmo formato em que foram coletados da
