@@ -1,5 +1,5 @@
 pandas
-pyarrow
+fastparquet
 pyyaml
 python-dotenv
 azure-identity
