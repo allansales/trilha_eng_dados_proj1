@@ -41,7 +41,7 @@ def write_to_destination(data, path_destination: str, artifact_name: str) -> boo
         elif ext == ".parquet":
             if not isinstance(data, pd.DataFrame):
                 raise TypeError("Para Parquet, 'data' must be a pandas DataFrame")
-            data.to_parquet(file_path, index=False)
+            data.to_parquet(file_path, index=False, engine="fastparquet")
 
         elif ext == ".txt":
             with open(file_path, "w", encoding="utf-8") as f:

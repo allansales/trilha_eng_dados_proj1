@@ -41,4 +41,4 @@ def run_gold():
 
         print("Successfully executed Gold layer.")
     except Exception as e:
-        print(f"Gold layer executed with error {e}")
+        raise(f"Gold layer executed with error {e}")

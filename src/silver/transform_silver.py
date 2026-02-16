@@ -95,7 +95,7 @@ def run_silver():
         issue["is_resolved_at_valid"] = validate_resolved_at(issue)
 
         issue["dates_quality"] = issue.apply(evaluate_dates_quality, axis=1)
-
+        
         write_to_destination(issue, path_data_silver, issue_filename)
 
         # Transformations for the projects dataset
@@ -106,4 +106,4 @@ def run_silver():
         
         print("Successfully executed Silver layer.")
     except Exception as e:
-        print(f"Silver layer executed with error {e}")
+        raise(f"Silver layer executed with error {e}")

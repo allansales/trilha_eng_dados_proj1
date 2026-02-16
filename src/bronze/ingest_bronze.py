@@ -23,4 +23,4 @@ def run_bronze():
         write_to_destination(data, path_data_bronze, artifact_bronze_name)
         print("Successfully executed Bronze layer.")
     except Exception as e:
-        print(f"Bronze layer executed with error {e}")
+        raise(f"Bronze layer executed with error {e}")
